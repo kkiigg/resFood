@@ -1,8 +1,355 @@
 <template>
+	<view class="container-full">
+		<baseBackBar :title="store.state.shopInfo?.shopname ?? '北京老饭店本店'" back-url="/pages/home/index" left-text="從業員" :on-left-text-click="onLeftTextClick">
+			<!-- <view class="flex">
+				<uni-icons type="search" size="30" style="color: #fff" class="arrow1"></uni-icons>
+				<viewNumBtns></viewNumBtns>
+			</view> -->
+		</baseBackBar>
+
+		<view class="box flex-1 overflow-hidden">
+			<view class="wrap-left shadow-xl">
+				<scroll-view class="left-scroll-wrap" :scroll-y="true" scroll-x="false">
+					<uni-collapse accordion class="res-collapse">
+						<uni-collapse-item
+							v-for="(item, idx) in dataObj.menuList"
+							:key="item.classone"
+							:title="item.classonename"
+							:class="{ 'is-active': item.classone === dataObj.active }"
+							@click.stop="onPickMenu(item.classone)"
+						>
+							<view
+								v-for="(item2, idx2) in item.classtwolist"
+								:key="`${item.classone}-${item2.classtwo}`"
+								class="menu-wrap"
+								:class="{ 'is-active': item2.classtwo === dataObj.active }"
+								@click.stop="onPickMenu(item2.classtwo)"
+							>
+								{{ item2.classtwoname }}
+							</view>
+						</uni-collapse-item>
+					</uni-collapse>
+				</scroll-view>
+				<view class="shop-cart-title shadow-xl" @click="linkToCart">
+					<uni-badge size="small" :text="shopCartTotal" absolute="rightTop" type="error">
+						<uni-icons type="cart-filled" size="30" class="cart-icon"></uni-icons>
+					</uni-badge>
+
+					ショッピングカート
+				</view>
+			</view>
+
+			<scroll-view class="wrap-right" :scroll-y="true" scroll-x="false">
+				<noDataTip v-if="foodList.length === 0" style="padding-top: 50px"></noDataTip>
+
+				<view class="food-wrap">
+					<orderListCard
+						v-for="(item, index) in filtedGoodList"
+						class="food-card"
+						:key="item.foodid"
+						:data="item"
+						:btn-disabled="btnDisabled"
+						:on-click-card="onClickCard"
+						:on-add-food-to-cart="onAddFoodToCart"
+					></orderListCard>
+					<!-- :showOrderDetailModal="() => showOrderDetailModal(item)" -->
+				</view>
+			</scroll-view>
+		</view>
+
+		<baseModal width="400px" height="initial" v-model:show="orderDetailModalObj.active">
+			<orderDetailModal :data="orderDetailModalObj.data" :closeModel="() => (orderDetailModalObj.active = false)" :onConifrmCb="onAddFoodToCart"></orderDetailModal>
+		</baseModal>
+		<!--<view class="fixed-btn-wrap" @click="drawActive = true">
+			<uni-badge class="uni-badge-left-margin" :text="10" absolute="rightTop" size="small">
+				<uni-icons type="cart" size="30" style="color: #fff"></uni-icons>
+			</uni-badge>
+
+			<view class="fake-icon-wrap">
+				<uni-icons type="left" size="30" style="color: #fff" class="arrow1"></uni-icons>
+				<uni-icons type="left" size="30" style="color: #fff" class="arrow2"></uni-icons>
+			</view>
+		</view>
+		 <orderCar v-model:active="drawActive"></orderCar> -->
+		<image v-if="cartEffectObj.active" :src="cartEffectObj.imgSrc" :style="cartEffectObj.style" class="sp-effect"></image>
+	</view>
 </template>
 
-<script>
+<script setup>
+import { reactive, ref, computed } from 'vue';
+import { onBeforeUnmount } from 'vue';
+import { onLoad } from '@dcloudio/uni-app';
+import { EMIT_EVENT_ADD_CART_SP_EFFECT } from '@/common/enum/order.js';
+import { getClassifyList, getGoodsList } from '@/utils/api.js';
+import store from '@/store/index.js';
+
+const pageObj = reactive({
+	fileid: '',
+	tableName: ''
+});
+
+// 左上角返回按钮
+const onLeftTextClick = () => {
+	uni.navigateTo({
+		url: '/pages/clerkSetting/index?from=order'
+	});
+};
+
+// left
+const dataObj = reactive({
+	menuList: [],
+	active: null
+});
+const getMenuList = async () => {
+	const res = await getClassifyList({
+		padmacid: store.state.padmacid
+	});
+	dataObj.menuList = res;
+	dataObj.active = dataObj.menuList?.[0]?.classone ?? '';
+};
+getMenuList();
+
+const onPickMenu = (id) => {
+	dataObj.active = id;
+	console.log(id);
+	console.log(dataObj.active);
+};
+
+//左下角购物车
+const shopCartObj = ref(store.state.shopCart);
+const shopCartTotal = computed(() => {
+	return store.state.shopCart.reduce((total, item) => total + item.goods_count, 0);
+});
+const linkToCart = () => {
+	uni.navigateTo({
+		url: '/pages/shopCart/index'
+	});
+};
+// right
+const foodList = ref([]);
+
+const getFoods = async () => {
+	const res = await getGoodsList({
+		padmacid: store.state.padmacid
+	});
+	foodList.value = res;
+};
+getFoods();
+
+const filtedGoodList = computed(() => {
+	return foodList.value.filter((item) => item.classtwo === dataObj.active || item.classone === dataObj.active);
+});
+
+// 点击添加到购物车按钮
+const orderDetailModalObj = reactive({ active: false, data: {}, imgId: '' });
+const onClickCard = (data, imgId, callback) => {
+	orderDetailModalObj.imgId = imgId;
+	orderDetailModalObj.data = data;
+	if (data.remarkList.length) {
+		showOrderDetailModal();
+	} else {
+		// callback();
+		onAddFoodToCart();
+	}
+};
+// 显示添加商品参数蒙层
+const showOrderDetailModal = (data) => {
+	orderDetailModalObj.active = true;
+};
+
+// 添加到购物车函数
+const onAddFoodToCart = (changedData) => {
+	addCartSpEffect(orderDetailModalObj.imgId);
+	const d = changedData ? changedData : orderDetailModalObj.data;
+	store.commit('ADD_SHOP_CART', {
+		...d
+	});
+};
+
+// 添加到购物车特效
+const btnDisabled = ref(false);
+const cartEffectObj = reactive({
+	active: false,
+	imgSrc: '',
+	style: ''
+});
+
+const addCartSpEffect = () => {
+	const query = uni.createSelectorQuery().in(this);
+	query
+		.select('#' + orderDetailModalObj.imgId)
+		.boundingClientRect((d) => {
+			const { left, top, width, height } = d;
+			const imgSrc = orderDetailModalObj.data.imagelist?.[0]?.fileurl;
+			console.log(d);
+			uni.$emit(EMIT_EVENT_ADD_CART_SP_EFFECT, {
+				left,
+				top,
+				width,
+				height,
+				imgSrc
+			});
+		})
+		.exec();
+};
+
+let timer1, timer2;
+// TODO Z eventBus可以优化为普通函数
+uni.$on(EMIT_EVENT_ADD_CART_SP_EFFECT, (data) => {
+	clearTimeout(timer1);
+	clearTimeout(timer2);
+	cartEffectObj.active = false;
+	btnDisabled.value = true;
+
+	const { left, top, imgSrc, width, height } = data;
+	cartEffectObj.imgSrc = imgSrc;
+	cartEffectObj.style = `left:${left}px;top:${top}px;width:${width}px;height:${height}px;opacity:1;transform:rotate(0)`;
+	cartEffectObj.active = true;
+	timer1 = setTimeout(() => {
+		cartEffectObj.style = 'left:25px;top:calc(100vh - 10px);width:40px;height:40px;opacity:0.4;transform:rotate(720deg)';
+		timer2 = setTimeout(() => {
+			cartEffectObj.active = false;
+			btnDisabled.value = false;
+		}, 700);
+	}, 300);
+});
+onBeforeUnmount(() => {
+	uni.$off(EMIT_EVENT_ADD_CART_SP_EFFECT);
+});
+
+// lifecycles
+onLoad((opt) => {
+	const isFromCart = opt?.from === 'cart';
+
+	if (!isFromCart) {
+		pageObj.fileid = opt?.fileid ?? store.state.bindFileid;
+		pageObj.tablename = opt.tableName;
+		store.commit('SET_CURR_ORDER_OBJ', {
+			fileid: pageObj.fileid,
+			tablename: opt.tablename,
+			repastnum: opt?.repastnum
+		});
+		if (pageObj.fileid !== store.state.currOrderObj?.fileid) {
+			store.commit('CLEAR_SHOP_CART');
+		}
+	} else {
+		// 购物车跳转
+		pageObj.fileid = store.state.currOrderObj?.fileid;
+		pageObj.tablename = store.state.currOrderObj?.tablename;
+	}
+});
 </script>
 
-<style>
+<style lang="scss" scoped>
+@import '@/common/style/var.scss';
+.box {
+	padding: 20px 0 0;
+	display: flex;
+}
+.wrap-left {
+	$cartH: 64px;
+	width: 180px;
+	padding-bottom: $cartH;
+	position: relative;
+	padding-right: 10px;
+	.shop-cart-title {
+		position: absolute;
+		width: 100%;
+		height: $cartH;
+		// line-height: $cartH;
+		border-top: 1px solid $border-color;
+		border-bottom: 1px solid $border-color;
+		background-color: $primary;
+		color: #fff;
+		display: flex;
+
+		align-items: center;
+		font-weight: bold;
+		text-align: center;
+		border-radius: 0 12px 0 0;
+		font-size: 14px;
+		.cart-icon {
+			color: $red !important;
+			margin-right: 6px;
+		}
+		.cart-icon-wrap {
+			height: 40px;
+		}
+	}
+
+	.left-scroll-wrap {
+		height: 100%;
+	}
+}
+.menu-wrap {
+	font-size: 16px;
+}
+.wrap-right {
+	flex: 1;
+	padding: 0 20px 20px;
+	border-left: 1px solid $border-color;
+	text-align: center;
+	.food-wrap {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		grid-column-gap: 15px;
+		grid-row-gap: 15px;
+
+		justify-content: space-between;
+		// .food-card {
+		// 	widoth: 31%;
+		// }
+	}
+}
+@media screen and (max-width: 430px) {
+	.wrap-left {
+		width: 140px;
+	}
+	.wrap-right {
+		.food-wrap {
+			grid-template-columns: 1fr;
+		}
+	}
+}
+.sp-effect {
+	transition: all 1s;
+	position: fixed;
+}
+// @keyframes addCartSpEffect{
+// 	from{
+// 		transform: scale(1) rotate(0);
+// 	}
+// 	to{
+// 		transform: scale(1) rotate(0);
+// 	}
+// }
+// .fixed-btn-wrap {
+// 	position: fixed;
+// 	right: 0;
+// 	top: 50%;
+// 	transform: translateY(-50%);
+// 	padding: 10px;
+// 	padding-top: 30px;
+// 	border: 1px dashed #fff;
+// 	border-radius: 4px;
+// 	background: $light-blue;
+// 	outline: 6px solid $deep-blue;
+// 	width: 30px;
+// 	color: #fff;
+// }
+// .fake-icon-wrap {
+// 	position: relative;
+// 	height: 30px;
+// 	> * {
+// 		position: absolute;
+// 		left: 0;
+// 		top: 0;
+// 	}
+// 	.arrow1 {
+// 		transform: translateX(-5px);
+// 	}
+// 	.arrow2 {
+// 		transform: translateX(5px);
+// 	}
+// }
 </style>

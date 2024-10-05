@@ -1,0 +1,1 @@
+export const BASE_URL = 'http://3lb79528nz34.vicp.fun'

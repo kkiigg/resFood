@@ -1,6 +1,6 @@
 <template>
 	<view>
-		orderLeftMenu
+		orderLeftMenu 002
 	</view>
 </template>
 

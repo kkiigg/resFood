@@ -1,1 +1,7 @@
 @import '@/uni_modules/uni-scss/variables.scss';
+@import '@/common/style/var.scss';
+
+// $uni-primary: $primary;
+// TODO Z 一下变量修改无效 全局primary颜色仍然为始色
+$uni-primary: #bbd84f;
+$primary-color: #bbd84f;

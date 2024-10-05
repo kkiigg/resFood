@@ -1,14 +1,29 @@
 {
 	"pages": [{
-		"path": "pages/home/index",
-		"style": {
-			"navigationBarTitleText": "uni-app"
+			"path": "pages/home/index",
+			"style": {
+				"navigationBarTitleText": "uni-app"
+			}
+		}, {
+			"path": "pages/order/index"
+		}, {
+			"path": "pages/tableConnect/index"
+		},
+		{
+			"path": "pages/setting/index"
+		},
+		{
+			"path": "pages/clerkSetting/index"
+		},
+		{
+			"path": "pages/shopCart/index"
 		}
-	},{
-		"path": "pages/order/index"
-	}],
+
+
+	],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
+		"navigationStyle": "custom",
 		"navigationBarTitleText": "uni-app",
 		"navigationBarBackgroundColor": "#F8F8F8",
 		"backgroundColor": "#F8F8F8",
