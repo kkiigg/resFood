@@ -48,7 +48,6 @@
 						class="food-card"
 						:key="item.foodid"
 						:data="item"
-						:btn-disabled="btnDisabled"
 						:on-click-card="onClickCard"
 						:on-add-food-to-cart="onAddFoodToCart"
 					></orderListCard>
@@ -71,7 +70,7 @@
 			</view>
 		</view>
 		 <orderCar v-model:active="drawActive"></orderCar> -->
-		<image v-if="cartEffectObj.active" :src="cartEffectObj.imgSrc" :style="cartEffectObj.style" class="sp-effect"></image>
+		<image v-for="item in cartEffectObj.transiImgList" :key="item.id" :src="item.imgSrc" :style="item.style" class="sp-effect" :class="{ 'is-hide': !item.active }"></image>
 	</view>
 </template>
 
@@ -79,7 +78,6 @@
 import { reactive, ref, computed } from 'vue';
 import { onBeforeUnmount } from 'vue';
 import { onLoad } from '@dcloudio/uni-app';
-import { EMIT_EVENT_ADD_CART_SP_EFFECT } from '@/common/enum/order.js';
 import { getClassifyList, getGoodsList } from '@/utils/api.js';
 import store from '@/store/index.js';
 
@@ -167,11 +165,11 @@ const onAddFoodToCart = (changedData) => {
 };
 
 // 添加到购物车特效
-const btnDisabled = ref(false);
 const cartEffectObj = reactive({
 	active: false,
 	imgSrc: '',
-	style: ''
+	style: '',
+	transiImgList: []
 });
 
 const addCartSpEffect = () => {
@@ -181,8 +179,8 @@ const addCartSpEffect = () => {
 		.boundingClientRect((d) => {
 			const { left, top, width, height } = d;
 			const imgSrc = orderDetailModalObj.data.imagelist?.[0]?.fileurl;
-			console.log(d);
-			uni.$emit(EMIT_EVENT_ADD_CART_SP_EFFECT, {
+
+			addCartEffect({
 				left,
 				top,
 				width,
@@ -193,29 +191,31 @@ const addCartSpEffect = () => {
 		.exec();
 };
 
-let timer1, timer2;
-// TODO Z eventBus可以优化为普通函数
-uni.$on(EMIT_EVENT_ADD_CART_SP_EFFECT, (data) => {
-	clearTimeout(timer1);
-	clearTimeout(timer2);
-	cartEffectObj.active = false;
-	btnDisabled.value = true;
-
+let clearTimer;
+const clearEffectImgList = () => {
+	// 清除垃圾数据
+	clearTimer = setTimeout(() => {
+		cartEffectObj.transiImgList = [];
+	}, 5000); // 这个时间不能比css transition-duration长
+};
+const addCartEffect = (data) => {
+	clearTimeout(clearTimer);
+	clearEffectImgList();
 	const { left, top, imgSrc, width, height } = data;
-	cartEffectObj.imgSrc = imgSrc;
-	cartEffectObj.style = `left:${left}px;top:${top}px;width:${width}px;height:${height}px;opacity:1;transform:rotate(0)`;
-	cartEffectObj.active = true;
-	timer1 = setTimeout(() => {
-		cartEffectObj.style = 'left:25px;top:calc(100vh - 10px);width:40px;height:40px;opacity:0.4;transform:rotate(720deg)';
-		timer2 = setTimeout(() => {
-			cartEffectObj.active = false;
-			btnDisabled.value = false;
+	const idx = cartEffectObj.transiImgList.length;
+	cartEffectObj.transiImgList.push({
+		imgSrc,
+		style: `left:${left}px;top:${top}px;width:${width}px;height:${height}px;opacity:1;transform:rotate(0)`,
+		active: true
+	});
+
+	setTimeout(() => {
+		cartEffectObj.transiImgList[idx].style = 'left:25px;top:calc(100vh - 10px);width:40px;height:40px;opacity:0.4;transform:rotate(720deg)';
+		setTimeout(() => {
+			cartEffectObj.transiImgList[idx].active = false;
 		}, 700);
 	}, 300);
-});
-onBeforeUnmount(() => {
-	uni.$off(EMIT_EVENT_ADD_CART_SP_EFFECT);
-});
+};
 
 // lifecycles
 onLoad((opt) => {
@@ -314,6 +314,9 @@ onLoad((opt) => {
 .sp-effect {
 	transition: all 1s;
 	position: fixed;
+	&.is-hide {
+		display: none !important;
+	}
 }
 // @keyframes addCartSpEffect{
 // 	from{

@@ -151,11 +151,11 @@ const rightDataComputed = computed(() => {
 	const oriList = shopCartList.value;
 	console.log(oriList);
 
-	const shopcartList = oriList.filter((item) => item.status !== 1);
+	const shopcartList = oriList.filter((item) => item.status != 1);
 	const list1Num = shopcartList.reduce((total, item) => total + Number(item.goods_count), 0);
 	const list1Total = shopcartList.reduce((total, item) => total + Number(item.totalPrice), 0);
 
-	const orderedList = oriList.filter((item) => item.status === 1);
+	const orderedList = oriList.filter((item) => item.status == 1);
 	const list2Num = orderedList.reduce((total, item) => total + Number(item.goods_count), 0);
 	const list2Total = orderedList.reduce((total, item) => total + Number(item.totalPrice), 0);
 
@@ -167,18 +167,14 @@ const rightDataComputed = computed(() => {
 	};
 });
 // 获取税额
-let ApiTimer = null;
+// let ApiTimer = null;
 const taxObj = reactive({
 	externalTaxAmount: 0,
 	internalTaxAmount: 0
 });
-watch(rightDataComputed.list2Total, (val) => {
-	clearTimeout(ApiTimer);
-	setTimeout(() => {
-		getPayMonTax(val);
-	}, 800);
-});
+
 const getPayMonTax = async (orderTotal) => {
+	if (!orderTotal) return;
 	const res = await payMoneyTax({
 		shopid: store.state.shopid,
 		order_total: orderTotal
@@ -186,6 +182,18 @@ const getPayMonTax = async (orderTotal) => {
 	taxObj.externalTaxAmount = res.externalTaxAmount;
 	taxObj.internalTaxAmount = res.internalTaxAmount;
 };
+watch(
+	rightDataComputed,
+	(nv, ov) => {
+		if (nv?.list2Total !== ov?.list2Total) {
+			getPayMonTax(nv?.list2Total);
+		}
+	},
+	{
+		immediate: true,
+		deep: true
+	}
+);
 
 // 数量变化回调
 const onGoodCountChange = (num, index) => {
@@ -242,13 +250,15 @@ const requestGetOrder = async () => {
 const onResOrder = async () => {
 	uni.showModal({
 		title: '確認しますか？',
-		success: async () => {
-			await settleAccountsCheck({
-				orderId: pageObj.orderid
-			});
-			uni.showToast({
-				title: '操作が成功しました'
-			});
+		success: async (res) => {
+			if (res.confirm) {
+				await settleAccountsCheck({
+					orderId: pageObj.orderid
+				});
+				uni.showToast({
+					title: '操作が成功しました'
+				});
+			}
 		}
 	});
 };

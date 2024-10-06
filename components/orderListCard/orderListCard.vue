@@ -1,7 +1,11 @@
 <template>
 	<view class="o-card shadow-xl">
+		<view v-if="data.ifrecommend === 'Y'" class="recomand-sign">
+			<uni-icons type="fire-filled" size="20" class="icon-reco"></uni-icons>
+		</view>
+
 		<view class="pic-wrap">
-			<image mode="aspectFill" :src="data.imagelist?.[0]?.fileurl" class="o-img" :id="imgId" lazy-load></image>
+			<zero-lazy-load class="o-img" :id="imgId" :image="data.imagelist?.[0]?.fileurl" imgMode="aspectFill"></zero-lazy-load>
 			<view v-show="foodNum > 0" class="o-badage">{{ foodNum }}</view>
 		</view>
 		<view class="content">
@@ -47,6 +51,7 @@ const onClickItem = () => {
 
 <style lang="scss" scoped>
 @import '@/common/style/var.scss';
+
 .o-card {
 	border-radius: 4px;
 	display: flex;
@@ -54,6 +59,24 @@ const onClickItem = () => {
 	border: 1px solid $border-color;
 	border-radius: 6px;
 	overflow: hidden;
+	position: relative;
+}
+.recomand-sign {
+	position: absolute;
+	right: 0;
+	top: 0;
+
+	border-top: 20px solid $red;
+	border-right: 20px solid $red;
+	border-bottom: 20px solid transparent;
+	border-left: 20px solid transparent;
+	z-index: 1;
+	.icon-reco {
+		position: absolute;
+		color: white !important;
+		right: -18px;
+		top: -18px;
+	}
 }
 .content {
 	padding: 15px;

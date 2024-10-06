@@ -24,7 +24,7 @@
 
 		<!-- 输入面板 -->
 		<baseModal width="260px" height="initial" v-model:show="peopleNumObj.active">
-			<tabConMemberNum :onConfirm="onConfirm"></tabConMemberNum>
+			<tabConMemberNum :onConfirm="onConfirm" int="true"></tabConMemberNum>
 		</baseModal>
 	</view>
 </template>

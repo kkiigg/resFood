@@ -18,8 +18,8 @@
 
 <script setup>
 import { ref } from 'vue';
-const props = defineProps(['onConfirm']);
-const { onConfirm } = props;
+const props = defineProps(['onConfirm', 'int']);
+const { onConfirm, int } = props;
 
 const arrNumTen = new Array(9).fill(null).map((item, idx) => idx + 1);
 const numArr = [...arrNumTen, 0, '.', '削除'];
@@ -27,6 +27,7 @@ const numArr = [...arrNumTen, 0, '.', '削除'];
 const peopleNum = ref('0');
 
 const onEnterNum = (idx) => {
+	if (int && idx === 10) return; // '.'
 	if (peopleNum.value == '0') {
 		peopleNum.value = '';
 	}
@@ -37,7 +38,7 @@ const onEnterNum = (idx) => {
 		// 0
 		peopleNum.value += '0';
 	} else if (idx === 10) {
-		//TODO Z 这玩意没用吧 人数怎么会有小数
+		// '.'
 		if (peopleNum.value.indexOf('.') < 0) {
 			peopleNum.value += '.';
 			if (peopleNum.value === '.') {

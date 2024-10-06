@@ -92,16 +92,22 @@ const onSubmit = async () => {
 const cancelBind = () => {
 	uni.showModal({
 		title: '解除を確認しますか？',
-		success: async () => {
-			await unbindTable({
-				padmacid: store.state.padmacid
-			});
-			store.commit('SET_BIND_FILEED', '');
-			store.commit('SET_BIND_FILENANE', '');
+		success: async (res) => {
+			if (res.confirm) {
+				// 用户点击了确认按钮
+				await unbindTable({
+					padmacid: store.state.padmacid
+				});
+				store.commit('SET_BIND_FILEED', '');
+				store.commit('SET_BIND_FILENANE', '');
 
-			uni.showToast({
-				title: '操作が成功しました'
-			});
+				uni.showToast({
+					title: '操作が成功しました'
+				});
+			}
+		},
+		fail() {
+			return false;
 		}
 	});
 };

@@ -9,6 +9,7 @@ export default {
 				that.globalData.statusBarHeight = res.statusBarHeight;
 			}
 		});
+		plus.screen.lockOrientatio('landscape-primary');
 	},
 	onShow: function () {
 		console.log('App Show');

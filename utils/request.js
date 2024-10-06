@@ -45,7 +45,6 @@ const handleURL = (request) => {
 const showLoading = () => {
 	loadingCount++
 	uni.showLoading({
-		// TODO Z
 		title: 'Loading',
 	});
 };
