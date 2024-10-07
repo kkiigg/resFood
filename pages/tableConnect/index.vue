@@ -81,16 +81,14 @@ const peopleNumObj = reactive({
 	currFieName: '',
 	employpassword: ''
 });
-const onClickItem = (pageNum, idx) => {
+const onClickItem = async (pageNum, idx) => {
 	const item = getItemInArr(pageNum, idx);
 	peopleNumObj.currField = item.fileid;
 	peopleNumObj.currFieName = item.tablename;
 	if (item.tabletype == 1) {
 		peopleNumObj.active = true;
 	} else {
-		uni.navigateTo({
-			url: `/pages/order/index?fileid=${item.fileid}&tablename=${item.tablename}`
-		});
+		requestEmploySubset(0);
 	}
 };
 const onConfirm = async (num) => {
@@ -99,7 +97,9 @@ const onConfirm = async (num) => {
 	if (!num) {
 		return;
 	}
-	console.log(Number(num));
+	requestEmploySubset(Number(num));
+};
+const requestEmploySubset = async (num) => {
 	await employSubset({
 		shopid: store.state.shopid,
 		fileid: peopleNumObj.currField,
@@ -109,8 +109,14 @@ const onConfirm = async (num) => {
 		// oldfileid,
 		repastnum: num
 	});
+	let url;
+	if (num) {
+		url = `/pages/order/index?fileid=${peopleNumObj.currField}&repastnum=${num}&tablename=${peopleNumObj.currFieName}`;
+	} else {
+		url: `/pages/order/index?fileid=${peopleNumObj.currField}&repastnum=0&tablename=${peopleNumObj.currFieName}`;
+	}
 	uni.navigateTo({
-		url: `/pages/order/index?fileid=${peopleNumObj.currField}&repastnum=${num}&tablename=${peopleNumObj.currFieName}`
+		url
 	});
 };
 onMounted(() => {

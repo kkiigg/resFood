@@ -8,13 +8,13 @@
 			<view class="box">
 				<uni-forms :modelValue="formData" :rules="formObj.rules" label-width="200" class="o-form">
 					<uni-forms-item label="店舗番号" name="shopid">
-						<uni-easyinput type="text" v-model="formData.shopid" placeholder="リンクしたいテーブル... -を選択してください" />
+						<uni-easyinput type="text" v-model="formData.shopid" placeholder="リンクしたいテーブル... -を選択してください" @blur="onBlurOut" />
 					</uni-forms-item>
 					<uni-forms-item label="テーブルナンバーとリンクする" name="fileid">
 						<uni-data-select v-model="formData.fileid" :localdata="formObj.range"></uni-data-select>
 					</uni-forms-item>
 					<uni-forms-item label="店長パスワード" name="padpassword">
-						<uni-easyinput type="password" v-model="formData.padpassword" placeholder="店長パッド端末パスワードを入力してください" />
+						<uni-easyinput type="password" v-model="formData.padpassword" autocomplete="off" placeholder="店長パッド端末パスワードを入力してください" />
 					</uni-forms-item>
 					<view class="row-submit" @click="onSubmit">
 						設置を完成するGO
@@ -51,9 +51,9 @@ const formObj = reactive({
 	},
 	range: []
 });
-const getOptArr = async () => {
+const getOptArr = async (shopid) => {
 	const res = await getTableNum({
-		shopid: store.state.shopid
+		shopid: shopid ?? store.state.shopid
 	});
 
 	formObj.range = res.map((item) => {
@@ -64,6 +64,10 @@ const getOptArr = async () => {
 	});
 };
 getOptArr();
+
+const onBlurOut = () => {
+	getOptArr(formData.shopid);
+};
 
 const onSubmit = async () => {
 	await subSet({

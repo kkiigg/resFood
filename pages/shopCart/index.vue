@@ -16,6 +16,7 @@
 								<uni-tr>
 									<uni-th align="center">メニュー類別</uni-th>
 									<uni-th align="center">メニュー名称</uni-th>
+									<uni-th align="center">コメント</uni-th>
 									<uni-th align="left">単価</uni-th>
 									<uni-th align="left">数</uni-th>
 									<uni-th align="left">トタル</uni-th>
@@ -25,6 +26,7 @@
 								<uni-tr v-for="(item, idx) in shopCartList" :key="item.foodid">
 									<uni-td>{{ item.classtwoname || item.classonename }}</uni-td>
 									<uni-td>{{ item.foodname }}</uni-td>
+									<uni-td>{{ item.remark ?? '-' }}</uni-td>
 									<uni-td>{{ item.price }} {{ item.unitname }}</uni-td>
 									<uni-td>
 										<view class="num-box-wrap">
@@ -99,7 +101,7 @@
 							決済金額:
 							<view class="text-red">{{ rightDataComputed.list1Total }} 円</view>
 						</view>
-						<view class="pay-btn"><button type="primary" @click="sendOrder">オーダーする</button></view>
+						<view class="pay-btn"><button type="primary" @click="sendOrder" :disabled="orderLoading" :loading="orderLoading">オーダーする</button></view>
 					</view>
 				</view>
 			</view>
@@ -108,7 +110,7 @@
 </template>
 
 <script setup>
-import { reactive, computed, watch } from 'vue';
+import { ref, reactive, computed, watch } from 'vue';
 import store from '@/store/index.js';
 import { placeOrder, getOrder, settleAccountsCheck, payMoneyTax } from '@/utils/api.js';
 import { onLoad } from '@dcloudio/uni-app';
@@ -197,31 +199,50 @@ watch(
 
 // 数量变化回调
 const onGoodCountChange = (num, index) => {
-	store.commit('SET_SHOPCART_GOOD_COUNT', { num, index });
+	if (num <= 0) {
+		// uni.showModal({
+		// 	title: '商品を削除することを確認しますか？',
+		// 	success: async (res) => {
+		// 		if (res.confirm) {
+		store.commit('DROP_SHOPCART_ITEM_BY_IDX', index);
+		// 		} else {
+		// 			// store.commit('FORCE_SET_SHOPCART_GOOD_COUNT', { num: 1, index });
+		// 			store.commit('SET_SHOPCART_GOOD_COUNT', { num: 1, index });
+		// 		}
+		// 	}
+		// });
+	} else {
+		store.commit('SET_SHOPCART_GOOD_COUNT', { num, index });
+	}
 };
 
 // 下单
+const orderLoading = ref(false);
 const sendOrder = async () => {
 	let foodjson = '';
-	const foodArr = store.state.shopCart.map((item) => {
-		const { foodid, goods_count, remark } = item;
-		return {
-			foodid,
-			goods_count,
-			remark,
-			ifwait: 'N'
-		};
-	});
-	foodjson = JSON.stringify(foodArr);
-	await placeOrder({
-		padmacid: store.state.padmacid,
-		fileid: pageObj.fileid,
-		repastnum: pageObj.repastnum,
-		foodjson
-	});
-	await requestGetOrder();
-	store.commit('CLEAR_SHOP_CART');
-
+	orderLoading.value = true;
+	try {
+		const foodArr = store.state.shopCart.map((item) => {
+			const { foodid, goods_count, remark } = item;
+			return {
+				foodid,
+				goods_count,
+				remark,
+				ifwait: 'N'
+			};
+		});
+		foodjson = JSON.stringify(foodArr);
+		await placeOrder({
+			padmacid: store.state.padmacid,
+			fileid: pageObj.fileid,
+			repastnum: pageObj.repastnum,
+			foodjson
+		});
+		await requestGetOrder();
+		store.commit('CLEAR_SHOP_CART');
+	} finally {
+		orderLoading.value = false;
+	}
 	uni.showToast({
 		title: '注文に成功しました'
 	});

@@ -7,7 +7,7 @@
 					<uni-easyinput type="text" v-model="formData.shopid" placeholder="リンクしたいテーブル... -を選択してください" />
 				</uni-forms-item>
 				<uni-forms-item label="從業員パスワード" name="employpassword">
-					<uni-easyinput type="password" v-model="formData.employpassword" placeholder="從業員パッド端末パスワードを入力してください" />
+					<uni-easyinput type="password" v-model="formData.employpassword" autocomplete="off" placeholder="從業員パッド端末パスワードを入力してください" />
 				</uni-forms-item>
 				<view class="row-submit" @click="onSubmit">
 					設置を完成するGO

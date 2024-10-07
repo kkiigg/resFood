@@ -83,7 +83,7 @@ uni.addInterceptor('request', {
 		if (resultcode !== 1) {
 			uni.showToast({
 				title: msg,
-				icon: 'none',
+				icon: 'error',
 			});
 			return Promise.reject(msg);
 		}

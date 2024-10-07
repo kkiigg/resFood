@@ -119,6 +119,24 @@ const store = createStore({
 			} = payload
 			state.shopCart[index].goods_count = Number(num)
 		},
+		// FORCE_SET_SHOPCART_GOOD_COUNT(state, payload) {
+		// 	// 在SET_SHOPCART_GOOD_COUNT不更新视图时使用这个
+		// 	const {
+		// 		index,
+		// 		num,
+		// 	} = payload
+		// 	const newItem = {
+		// 		...state.shopCart[index],
+		// 		...{
+		// 			goods_count: Number(num)
+		// 		}
+		// 	}
+		// 	state.shopCart.splice(index, 1, newItem)
+		// 	console.log(state.shopCart[index].goods_count)
+		// },
+		DROP_SHOPCART_ITEM_BY_IDX(state, index) {
+			state.shopCart.splice(index, 1)
+		}
 	}
 })
 

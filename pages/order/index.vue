@@ -229,9 +229,9 @@ onLoad((opt) => {
 			tablename: opt.tablename,
 			repastnum: opt?.repastnum
 		});
-		if (pageObj.fileid !== store.state.currOrderObj?.fileid) {
-			store.commit('CLEAR_SHOP_CART');
-		}
+		// if (pageObj.fileid !== store.state.currOrderObj?.fileid) {
+		store.commit('CLEAR_SHOP_CART');
+		// }
 	} else {
 		// 购物车跳转
 		pageObj.fileid = store.state.currOrderObj?.fileid;

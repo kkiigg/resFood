@@ -9,7 +9,9 @@ export default {
 				that.globalData.statusBarHeight = res.statusBarHeight;
 			}
 		});
+		// #ifndef H5
 		plus.screen.lockOrientatio('landscape-primary');
+		// #endif
 	},
 	onShow: function () {
 		console.log('App Show');
