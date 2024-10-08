@@ -26,7 +26,8 @@ const store = createStore({
 			shopid: '',
 			fileid: '',
 			tablename: '',
-			repastnum: null
+			repastnum: null,
+			from: '' // 从哪个入口进来（不包括从购物车来的）
 		},
 		shopCart: [],
 

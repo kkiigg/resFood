@@ -33,7 +33,7 @@
 import { reactive, onMounted, getCurrentInstance } from 'vue';
 import { getEmployTableNum, employSubset, againBinding } from '@/utils/api.js';
 import store from '@/store/index.js';
-
+import { PageFrom } from '@/common/enum/order.js';
 // 桌子轮播
 const TAB_SIZE_IN_SWIPER = 8;
 
@@ -107,7 +107,7 @@ const requestAgainBinding = async () => {
 		fileid: formData.currField
 	});
 	uni.navigateTo({
-		url: `/pages/order/index?fileid=${formData.currField}&tablename=${formData.currFieName}&shopid=${formData.shopid}`
+		url: `/pages/order/index?fileid=${formData.currField}&tablename=${formData.currFieName}&shopid=${formData.shopid}&from=${PageFrom.assistant}`
 	});
 };
 const requestEmploySubset = async (num) => {
@@ -122,7 +122,7 @@ const requestEmploySubset = async (num) => {
 	});
 	let url;
 	if (num) {
-		url = `/pages/order/index?fileid=${formData.currField}&repastnum=${num}&tablename=${formData.currFieName}&shopid=${formData.shopid}`;
+		url = `/pages/order/index?fileid=${formData.currField}&repastnum=${num}&tablename=${formData.currFieName}&shopid=${formData.shopid}&from=${PageFrom.assistant}`;
 	}
 	// else {
 	// 	url: `/pages/order/index?fileid=${formData.currField}&repastnum=0&tablename=${formData.currFieName}`;

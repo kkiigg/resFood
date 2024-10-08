@@ -62,9 +62,17 @@ const onSubmit = () => {
 	formRef.value
 		.validate()
 		.then(async (res) => {
-			await clerkPasswordCheck({
-				...formData
-			});
+			const params =
+				fromRef.value === 'order'
+					? {
+							...formData,
+							...{
+								padmacidold: store.state.padmacid,
+								fileidold: store.state.currOrderObj.fileid
+							}
+					  }
+					: formData;
+			await clerkPasswordCheck(params);
 			store.commit('CLEAR_BIND_INFO');
 			uni.navigateTo({
 				url: FROM_ENUMS[fromRef.value]?.submitUrl ?? '/pages/home/index',

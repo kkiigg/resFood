@@ -11,17 +11,11 @@
 【问题1：employsubset接口repastnum不传会提示“repastnumできない空です” ，但是食事中状态的桌子不用重新选人数，目前先默认传一个0过去，需要确认会不会有影响？】
 【问题2（微信已沟通）：食事中的桌子调用employsubset会报错，“当該テーブルがバインドされました”】
 
-// 未完成
-1 loading接口请求结束时的显示问题
-2 点餐页面左栏 拖拽卡顿
-3 getContent请求失败时，屏蔽错误提示
-4 食事中employsubset接口替换
-5 密码设置去 shopid掉默认005
 
 // 1007-2
 // 已完成
-
+1 loading在接口请求结束后 仍然显示
 2 点餐页面左栏 拖拽卡顿 【需要帮忙测试】
 3 getContent请求失败时，屏蔽错误提示
-4 食事中employsubset接口替换
-5 密码设置去 shopid掉默认005
+4 食事中employsubset接口替换成againBinding
+5 密码设置页面 去掉shopid默认005

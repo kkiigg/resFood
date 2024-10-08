@@ -5,7 +5,7 @@
 			'margin-top': safeTop + 'px'
 		}"
 	>
-		<view v-if="!leftText" @click="linkTo">
+		<view v-if="!leftText" @click="onClickLeftText">
 			<image src="@/static/images/back.png" style="width: 20px; height: 15px; padding-left: 15px" mode="aspectFit"></image>
 		</view>
 		<view v-else class="left-text" @click="onClickLeftText">

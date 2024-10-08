@@ -125,14 +125,18 @@ export const getGoodsList = ({
 export const clerkPasswordCheck = ({
 	shopid,
 	employpassword,
-	padmacid
+	padmacid,
+	padmacidold,
+	fileidold
 }) => {
 	return get({
 		url: '/baseAndFoodInfo/clerkpasswordcheck',
 		data: {
 			shopid,
 			employpassword,
-			padmacid
+			padmacid,
+			padmacidold,
+			fileidold
 		}
 	});
 }

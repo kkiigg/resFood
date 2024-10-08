@@ -58,7 +58,6 @@
 import { computed, reactive, ref } from 'vue';
 import { onReady, onShow } from '@dcloudio/uni-app';
 import store from '@/store/index.js';
-import { getShopContent } from '@/utils/api.js';
 
 const drawRef = ref();
 const drawStatus = ref(true);
@@ -116,23 +115,12 @@ const setPadmacid = () => {
 	const deviceInfo = uni.getDeviceInfo();
 	padmacid = deviceInfo.deviceId;
 	// #endif
-	store.commit('SET_PADMACID', padmacid);
+	store.commit('SET_PADMACID', padmacid || store.state.padmacid);
 	console.log(padmacid, 'padmacid');
 };
-if (!store.state.padmacid) {
-	setPadmacid();
-}
 
-const requestShopContent = async () => {
-	const res = await getShopContent({
-		padmacid: store.state.padmacid,
-		fileid: store.state.bindFileid
-	});
-	store.commit('SET_SHOP_INFOSET_SHOPID', res);
-};
-if (!store.state.shopInfo) {
-	requestShopContent();
-}
+setPadmacid();
+
 onReady(() => {
 	showDrawer();
 });

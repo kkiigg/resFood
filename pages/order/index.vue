@@ -1,6 +1,10 @@
 <template>
 	<view class="container-full">
-		<baseBackBar :title="store.state.shopInfo?.shopname ?? '北京老饭店本店'" back-url="/pages/home/index" left-text="從業員" :on-left-text-click="onLeftTextClick">
+		<baseBackBar
+			:title="store.state.shopInfo?.shopname ?? '北京老饭店本店'"
+			:left-text="store.state.currOrderObj?.from === pageObj.PageFrom.assistant ? null : '從業員'"
+			:on-left-text-click="onLeftTextClick"
+		>
 			<!-- <view class="flex">
 				<uni-icons type="search" size="30" style="color: #fff" class="arrow1"></uni-icons>
 				<viewNumBtns></viewNumBtns>
@@ -78,16 +82,24 @@
 import { reactive, ref, computed } from 'vue';
 import { onBeforeUnmount } from 'vue';
 import { onLoad } from '@dcloudio/uni-app';
-import { getClassifyList, getGoodsList } from '@/utils/api.js';
+import { getClassifyList, getGoodsList, getShopContent } from '@/utils/api.js';
 import store from '@/store/index.js';
+import { PageFrom } from '@/common/enum/order.js';
 
 const pageObj = reactive({
 	fileid: '',
-	tableName: ''
+	tableName: '',
+	PageFrom
 });
 
 // 左上角返回按钮
 const onLeftTextClick = () => {
+	if (store.state.currOrderObj?.from === PageFrom.assistant) {
+		uni.navigateTo({
+			url: '/pages/home/index'
+		});
+		return;
+	}
 	uni.navigateTo({
 		url: '/pages/clerkSetting/index?from=order'
 	});
@@ -245,11 +257,25 @@ const addCartEffect = (data) => {
 	}, 300);
 };
 
+// 需求：在点餐时获取店铺信息
+const requestShopContent = async () => {
+	try {
+		const res = await getShopContent({
+			padmacid: store.state.padmacid,
+			fileid: store.state.currOrderObj.fileid
+		});
+		store.commit('SET_SHOP_INFOSET_SHOPID', res);
+	} catch (e) {
+		console.log(e);
+	}
+};
+
 // lifecycles
 onLoad((opt) => {
 	const isFromCart = opt?.from === 'cart';
 
 	if (!isFromCart) {
+		// 非购物车来的
 		pageObj.fileid = opt?.fileid ?? store.state.bindFileid;
 		pageObj.tablename = opt.tableName;
 
@@ -257,13 +283,15 @@ onLoad((opt) => {
 			shopid: opt.shopid || store.state.shopid,
 			fileid: pageObj.fileid,
 			tablename: opt.tablename,
-			repastnum: opt?.repastnum
+			repastnum: opt?.repastnum,
+			from: opt?.from
 		});
 		// if (pageObj.fileid !== store.state.currOrderObj?.fileid) {
 		store.commit('CLEAR_SHOP_CART');
+		requestShopContent();
 		// }
 	} else {
-		// 购物车跳转
+		// 购物车跳转来的
 		pageObj.fileid = store.state.currOrderObj?.fileid;
 		pageObj.tablename = store.state.currOrderObj?.tablename;
 	}

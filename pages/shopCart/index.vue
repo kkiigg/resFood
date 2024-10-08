@@ -99,7 +99,7 @@
 						</view>
 						<view class="flex">
 							決済金額:
-							<view class="text-red">{{ rightDataComputed.list1Total }} 円</view>
+							<view class="text-red">{{ rightDataComputed.list2Total }} 円</view>
 						</view>
 						<view class="pay-btn"><button type="primary" @click="sendOrder" :disabled="orderLoading" :loading="orderLoading">オーダーする</button></view>
 					</view>
