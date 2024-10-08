@@ -39,12 +39,12 @@
 				</view>
 			</view>
 
-			<scroll-view class="wrap-right" :scroll-y="true" scroll-x="false">
-				<noDataTip v-if="foodList.length === 0" style="padding-top: 50px"></noDataTip>
+			<scroll-view class="wrap-right" :scroll-y="true" scroll-x="false" :lower-threshold="50" @scrolltolower="rightListDataLoad">
+				<noDataTip v-if="rightPageObj.showList.length === 0" style="padding-top: 50px"></noDataTip>
 
 				<view class="food-wrap">
 					<orderListCard
-						v-for="(item, index) in filtedGoodList"
+						v-for="(item, index) in rightPageObj.showList"
 						class="food-card"
 						:key="item.foodid"
 						:data="item"
@@ -105,12 +105,13 @@ const getMenuList = async () => {
 	dataObj.menuList = res;
 	dataObj.active = dataObj.menuList?.[0]?.classone ?? '';
 };
-getMenuList();
+// getMenuList();
 
 const onPickMenu = (id) => {
 	dataObj.active = id;
 	console.log(id);
 	console.log(dataObj.active);
+	initRightPageObj();
 };
 
 //左下角购物车
@@ -124,19 +125,46 @@ const linkToCart = () => {
 	});
 };
 // right
-const foodList = ref([]);
+// TODO如有性能问题可以用虚拟滚动，目前数据量不大
+const pageSize = 12;
+const rightPageObj = reactive({
+	// 所有的数据列表
+	foodList: [],
+	// 每个分类id下的数据列表
+	filteredList: [],
+	// 根据分页展示的数据列表
+	showList: [],
+	pageFoodIndex: 1
+});
 
 const getFoods = async () => {
 	const res = await getGoodsList({
 		padmacid: store.state.padmacid
 	});
-	foodList.value = res;
+	rightPageObj.foodList = res ?? [];
 };
-getFoods();
+// getFoods();
 
-const filtedGoodList = computed(() => {
-	return foodList.value.filter((item) => item.classtwo === dataObj.active || item.classone === dataObj.active);
-});
+const initRightPageObj = () => {
+	rightPageObj.pageFoodIndex = 0;
+	rightPageObj.showList = [];
+	rightPageObj.filteredList = rightPageObj.foodList.filter((item) => item.classtwo === dataObj.active || item.classone === dataObj.active);
+	rightListDataLoad();
+};
+
+const rightListDataLoad = () => {
+	if (rightPageObj.pageFoodIndex >= rightPageObj.filteredList.length) {
+		return;
+	}
+	rightPageObj.showList = [...rightPageObj.showList, ...rightPageObj.filteredList.slice(rightPageObj.pageFoodIndex, rightPageObj.pageFoodIndex + pageSize)];
+	rightPageObj.pageFoodIndex += pageSize;
+};
+
+// 页面初始化
+const initPageRequest = async () => {
+	await Promise.all([getFoods(), getMenuList()]);
+	initRightPageObj();
+};
 
 // 点击添加到购物车按钮
 const orderDetailModalObj = reactive({ active: false, data: {}, imgId: '' });
@@ -224,7 +252,9 @@ onLoad((opt) => {
 	if (!isFromCart) {
 		pageObj.fileid = opt?.fileid ?? store.state.bindFileid;
 		pageObj.tablename = opt.tableName;
+
 		store.commit('SET_CURR_ORDER_OBJ', {
+			shopid: opt.shopid || store.state.shopid,
 			fileid: pageObj.fileid,
 			tablename: opt.tablename,
 			repastnum: opt?.repastnum
@@ -237,6 +267,8 @@ onLoad((opt) => {
 		pageObj.fileid = store.state.currOrderObj?.fileid;
 		pageObj.tablename = store.state.currOrderObj?.tablename;
 	}
+
+	initPageRequest();
 });
 </script>
 

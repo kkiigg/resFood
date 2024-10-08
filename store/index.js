@@ -6,7 +6,6 @@ import {
 } from '@/utils/storage.js'
 const store = createStore({
 	state: {
-		shopInfo: null,
 		// shopInfo 格式：
 		//         "shopname": "北京老飯店　みらい平店",
 		//         "imagelist": [
@@ -16,14 +15,15 @@ const store = createStore({
 		//                 "fileid": "C537A218-1031-4E10-8715-A0D2B96D9173"
 		//             }
 		//         ],
-
-		shopid: "005",
-		padmacid: uni.getStorageSync('padmacid') ?? "",
-		// 绑定的桌号（持久化）
-		bindFileid: uni.getStorageSync('bindFileid') ?? "",
-		bindTableName: uni.getStorageSync('bindTableName') ?? "",
+		shopInfo: null,
+		padmacid: uni.getStorageSync('padmacid') || "",
+		// 目前绑定的信息（通过/pages/set/index）
+		shopid: uni.getStorageSync('shopid') || "", // 店铺信息
+		bindFileid: uni.getStorageSync('bindFileid') || "", // 桌号
+		bindTableName: uni.getStorageSync('bindTableName') ?? "", // 桌子名称
 		// 当前进入点餐页面的桌子信息（持久化,每次进入order重新设置）
 		currOrderObj: getStorageJson('currOrderObj') || {
+			shopid: '',
 			fileid: '',
 			tablename: '',
 			repastnum: null
@@ -37,6 +37,10 @@ const store = createStore({
 		},
 		SET_SHOPID(state, val) {
 			state.shopid = val
+			uni.setStorage({
+				key: 'shopid',
+				data: val,
+			});
 		},
 		SET_PADMACID(state, val) {
 			state.padmacid = val
@@ -62,13 +66,15 @@ const store = createStore({
 		CLEAR_BIND_INFO(state) {
 			state.bindFileid = ''
 			state.bindTableName = ''
-			uni.setStorage({
+			state.shopid = ''
+			uni.removeStorage({
 				key: 'bindFileid',
-				data: '',
 			});
-			uni.setStorage({
+			uni.removeStorage({
 				key: 'bindTableName',
-				data: '',
+			});
+			uni.removeStorage({
+				key: 'shopid',
 			});
 		},
 		SET_CURR_ORDER_OBJ(state, payload) {

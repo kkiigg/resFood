@@ -63,10 +63,11 @@ const getOptArr = async (shopid) => {
 		};
 	});
 };
-getOptArr();
+// getOptArr();
 
 const onBlurOut = () => {
 	getOptArr(formData.shopid);
+	formData.fileid = '';
 };
 
 const onSubmit = async () => {
@@ -81,6 +82,7 @@ const onSubmit = async () => {
 	const bindTableName = formObj.range.find((item) => item.value === formData.fileid)?.text;
 
 	store.commit('SET_BIND_FILENANE', bindTableName);
+	store.commit('SET_SHOPID', formData.shopid);
 
 	uni.showToast({
 		title: '操作が成功しました'

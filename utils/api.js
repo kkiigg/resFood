@@ -78,7 +78,8 @@ export const getShopContent = ({
 		url: '/baseAndFoodInfo/getshopcontent',
 		data: {
 			padmacid
-		}
+		},
+		hideError: true
 	});
 }
 
@@ -219,5 +220,20 @@ export const payMoneyTax = ({
 			shopid,
 			order_total
 		}
+	});
+}
+
+// 重新绑定
+export const againBinding = ({
+	padmacid,
+	fileid
+}) => {
+	return get({
+		url: '/baseAndFoodInfo/againbinding',
+		data: {
+			padmacid,
+			fileid
+		},
+
 	});
 }

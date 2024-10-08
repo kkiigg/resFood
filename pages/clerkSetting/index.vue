@@ -69,7 +69,7 @@ const onSubmit = () => {
 			uni.navigateTo({
 				url: FROM_ENUMS[fromRef.value]?.submitUrl ?? '/pages/home/index',
 				success(res) {
-					res.eventChannel.emit('sendPsw', { pwd: formData.employpassword });
+					res.eventChannel.emit('sendPsw', { pwd: formData.employpassword, shopid: formData.shopid });
 				}
 			});
 		})

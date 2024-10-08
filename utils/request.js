@@ -13,6 +13,7 @@ const defaultOptions = {
 	dataType: 'json',
 	header: {
 		'content-type': 'application/json',
+		'front-show-error': true,
 	},
 };
 // const TOKEN_KEY = 'token';
@@ -22,8 +23,9 @@ const SUCCESS = 'SUCCESS';
 const LOADING_DELAY = 50; // 50ms 延迟
 let loadingTimer;
 let loadingCount = 0
-
+let hideError = false
 const handleURL = (request) => {
+
 	// const {
 	// 	url
 	// } = request;
@@ -35,6 +37,7 @@ const handleURL = (request) => {
 	request.url = `${BASE_URL}${request.url}`
 };
 
+// 目前不用
 // const handleToken = (request) => {
 //   const token = uni.getStorageSync(TOKEN_KEY);
 //   if (token) {
@@ -42,49 +45,53 @@ const handleURL = (request) => {
 //   }
 // };
 
-const showLoading = () => {
+const showLoading = (isShow) => {
 	loadingCount++
-	uni.showLoading({
-		title: 'Loading',
-	});
-};
-
-const hideLoading = () => {
-	loadingCount--
-	if (loadingCount === 0) {
-		uni.hideLoading();
+	if (isShow) {
+		uni.showLoading({
+			title: 'Loading',
+		});
 	}
 
 };
+const hideLoading = () => {
+	loadingCount--
+	if (loadingCount <= 0) {
+		uni.hideLoading();
+	}
+};
 
 uni.addInterceptor('request', {
-	invoke: function(config) {
-		if (config.loading) {
-			loadingTimer = setTimeout(showLoading, LOADING_DELAY);
-		}
-		handleURL(config);
-		//   handleToken(config);
+	invoke: function(args) {
+
+		loadingTimer = setTimeout(() => {
+			showLoading(args.loading)
+		}, LOADING_DELAY);
+
+		hideError = !!args.config.hideError
+		handleURL(args);
+		//   handleToken(args);
 	},
 	success(res) {
 		const {
-			data: resData
+			data: resData,
+			header
 		} = res;
+		console.log('res', res)
 		const {
 			data,
 			msg,
 			result,
 			resultcode
 		} = resData
-		console.log(data,
-			msg,
-			result,
-			resultcode)
 
 		if (resultcode !== 1) {
-			uni.showToast({
-				title: msg,
-				icon: 'error',
-			});
+			if (!hideError) {
+				uni.showToast({
+					title: msg,
+					icon: 'error',
+				});
+			}
 			return Promise.reject(msg);
 		}
 		return Promise.resolve(data);
@@ -116,6 +123,8 @@ const wrapRequest = ({
 	method = 'GET',
 	header = {},
 	loading = true,
+	hideError = false
+
 } = {}) => {
 	const s = getDateStr()
 	return uni.request({
@@ -133,12 +142,15 @@ const wrapRequest = ({
 			...defaultOptions.header,
 			...header,
 		},
+		config: {
+			hideError
+		}
 	});
 };
 
 export const get = (params) => wrapRequest({
 	...params,
-	method: 'GET'
+	method: 'GET',
 });
 export const post = (params) => wrapRequest({
 	...params,

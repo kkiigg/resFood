@@ -26,7 +26,7 @@
 								<uni-tr v-for="(item, idx) in shopCartList" :key="item.foodid">
 									<uni-td>{{ item.classtwoname || item.classonename }}</uni-td>
 									<uni-td>{{ item.foodname }}</uni-td>
-									<uni-td>{{ item.remark ?? '-' }}</uni-td>
+									<uni-td>{{ item.remark || '-' }}</uni-td>
 									<uni-td>{{ item.price }} {{ item.unitname }}</uni-td>
 									<uni-td>
 										<view class="num-box-wrap">
@@ -178,7 +178,7 @@ const taxObj = reactive({
 const getPayMonTax = async (orderTotal) => {
 	if (!orderTotal) return;
 	const res = await payMoneyTax({
-		shopid: store.state.shopid,
+		shopid: store.state.currOrderObj?.shopid,
 		order_total: orderTotal
 	});
 	taxObj.externalTaxAmount = res.externalTaxAmount;

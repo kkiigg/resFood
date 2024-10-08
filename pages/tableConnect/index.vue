@@ -23,7 +23,7 @@
 		</swiper>
 
 		<!-- 输入面板 -->
-		<baseModal width="260px" height="initial" v-model:show="peopleNumObj.active">
+		<baseModal width="260px" height="initial" v-model:show="formData.active">
 			<tabConMemberNum :onConfirm="onConfirm" int="true"></tabConMemberNum>
 		</baseModal>
 	</view>
@@ -31,7 +31,7 @@
 
 <script setup>
 import { reactive, onMounted, getCurrentInstance } from 'vue';
-import { getEmployTableNum, employSubset } from '@/utils/api.js';
+import { getEmployTableNum, employSubset, againBinding } from '@/utils/api.js';
 import store from '@/store/index.js';
 
 // 桌子轮播
@@ -63,47 +63,58 @@ const getItemInArr = (pageNum, idx) => {
 	return { ...swiperObj.tableArr[index], index };
 };
 
+// 面板输入
+const formData = reactive({
+	active: false,
+	data: {},
+	currField: '',
+	currFieName: '',
+	employpassword: '',
+	shopid: ''
+});
+
 const queryData = async () => {
 	const res = await getEmployTableNum({
-		shopid: store.state.shopid
+		shopid: formData.shopid
 	});
 
 	swiperObj.tableArr = res;
 	swiperObj.swiperNum = Math.ceil(res.length / TAB_SIZE_IN_SWIPER);
 };
-queryData();
 
-// 面板输入
-const peopleNumObj = reactive({
-	active: false,
-	data: {},
-	currField: '',
-	currFieName: '',
-	employpassword: ''
-});
 const onClickItem = async (pageNum, idx) => {
 	const item = getItemInArr(pageNum, idx);
-	peopleNumObj.currField = item.fileid;
-	peopleNumObj.currFieName = item.tablename;
+	formData.currField = item.fileid;
+	formData.currFieName = item.tablename;
 	if (item.tabletype == 1) {
-		peopleNumObj.active = true;
+		formData.active = true;
 	} else {
-		requestEmploySubset(0);
+		requestAgainBinding();
 	}
 };
+
 const onConfirm = async (num) => {
 	console.log(num);
-	peopleNumObj.active = false;
+	formData.active = false;
 	if (!num) {
 		return;
 	}
 	requestEmploySubset(Number(num));
 };
+const requestAgainBinding = async () => {
+	await againBinding({
+		padmacid: store.state.padmacid,
+		fileid: formData.currField
+	});
+	uni.navigateTo({
+		url: `/pages/order/index?fileid=${formData.currField}&tablename=${formData.currFieName}&shopid=${formData.shopid}`
+	});
+};
 const requestEmploySubset = async (num) => {
 	await employSubset({
-		shopid: store.state.shopid,
-		fileid: peopleNumObj.currField,
-		employpassword: peopleNumObj.employpassword,
+		shopid: formData.shopid,
+		fileid: formData.currField,
+		employpassword: formData.employpassword,
 		padmacid: store.state.padmacid,
 		type: 1,
 		// oldfileid,
@@ -111,10 +122,11 @@ const requestEmploySubset = async (num) => {
 	});
 	let url;
 	if (num) {
-		url = `/pages/order/index?fileid=${peopleNumObj.currField}&repastnum=${num}&tablename=${peopleNumObj.currFieName}`;
-	} else {
-		url: `/pages/order/index?fileid=${peopleNumObj.currField}&repastnum=0&tablename=${peopleNumObj.currFieName}`;
+		url = `/pages/order/index?fileid=${formData.currField}&repastnum=${num}&tablename=${formData.currFieName}&shopid=${formData.shopid}`;
 	}
+	// else {
+	// 	url: `/pages/order/index?fileid=${formData.currField}&repastnum=0&tablename=${formData.currFieName}`;
+	// }
 	uni.navigateTo({
 		url
 	});
@@ -124,7 +136,9 @@ onMounted(() => {
 	const eventChannel = instance.getOpenerEventChannel();
 	eventChannel.on('sendPsw', (data) => {
 		console.log('rec', data);
-		peopleNumObj.employpassword = data.pwd;
+		formData.employpassword = data.pwd;
+		formData.shopid = data.shopid;
+		queryData();
 	});
 });
 </script>
