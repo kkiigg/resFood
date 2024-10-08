@@ -1,11 +1,11 @@
 <template>
-	<view class="o-card shadow-xl">
+	<view class="order-list-card o-card shadow-xl">
 		<view v-if="data.ifrecommend === 'Y'" class="recomand-sign">
 			<uni-icons type="fire-filled" size="20" class="icon-reco"></uni-icons>
 		</view>
 
 		<view class="pic-wrap">
-			<zero-lazy-load class="o-img" :id="imgId" :image="data.imagelist?.[0]?.fileurl" imgMode="aspectFill"></zero-lazy-load>
+			<zero-lazy-load class="o-img zero-lazy-h-full" :id="imgId" :image="data.imagelist?.[0]?.fileurl" imgMode="aspectFill"></zero-lazy-load>
 			<view v-show="foodNum > 0" class="o-badage">{{ foodNum }}</view>
 		</view>
 		<view class="content">

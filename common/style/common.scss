@@ -182,3 +182,14 @@ body {
 uni-button[type='primary'] {
 	background: $primary !important;
 }
+
+/* plugin style rebuild*/
+.zero-lazy-h-full {
+	> * {
+		height: 100%;
+	}
+
+	.zero-lazy-item {
+		height: 100% !important;
+	}
+}
