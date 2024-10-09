@@ -63,7 +63,9 @@ const getOptArr = async (shopid) => {
 		};
 	});
 };
-// getOptArr();
+if (formData.shopid) {
+	getOptArr();
+}
 
 const onBlurOut = () => {
 	getOptArr(formData.shopid);
