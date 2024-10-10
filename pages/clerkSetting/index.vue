@@ -72,8 +72,11 @@ const onSubmit = () => {
 							}
 					  }
 					: formData;
-			await clerkPasswordCheck(params);
-			store.commit('CLEAR_BIND_INFO');
+			if (fromRef.value === 'order') {
+				await clerkPasswordCheck(params);
+				store.commit('CLEAR_BIND_INFO');
+			}
+
 			uni.navigateTo({
 				url: FROM_ENUMS[fromRef.value]?.submitUrl ?? '/pages/home/index',
 				success(res) {
