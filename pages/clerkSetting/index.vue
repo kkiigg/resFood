@@ -74,7 +74,7 @@ const onSubmit = () => {
 					: formData;
 			if (fromRef.value === 'order') {
 				await clerkPasswordCheck(params);
-				store.commit('CLEAR_BIND_INFO');
+				// store.commit('CLEAR_BIND_INFO');
 			}
 
 			uni.navigateTo({
