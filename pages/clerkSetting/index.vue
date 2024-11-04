@@ -52,6 +52,7 @@ const FROM_ENUMS = {
 		submitUrl: '/pages/home/index',
 		backUrl: `/pages/order/index?fileid=${store.state.currOrderObj.fileid}&tablename=${store.state.currOrderObj.tablename}`
 	},
+	// tableConnect调过来from目前也是home
 	home: {
 		submitUrl: '/pages/tableConnect/index',
 		backUrl: '/pages/home/index'
@@ -76,12 +77,16 @@ const onSubmit = () => {
 				await clerkPasswordCheck(params);
 				// store.commit('CLEAR_BIND_INFO');
 			}
+			if (fromRef.value === 'home') {
+				store.commit('SET_CLEAR_SETTING_STATE', { employpassword: formData.employpassword, shopid: formData.shopid });
+			}
 
 			uni.navigateTo({
-				url: FROM_ENUMS[fromRef.value]?.submitUrl ?? '/pages/home/index',
-				success(res) {
-					res.eventChannel.emit('sendPsw', { pwd: formData.employpassword, shopid: formData.shopid });
-				}
+				url: FROM_ENUMS[fromRef.value]?.submitUrl ?? '/pages/home/index'
+				// success(res) {
+
+				// res.eventChannel.emit('sendPsw', { pwd: formData.employpassword, shopid: formData.shopid });
+				// }
 			});
 		})
 		.catch((err) => {
@@ -94,6 +99,8 @@ const getBackUrl = () => {
 onLoad((opt) => {
 	const from = opt?.from;
 	fromRef.value = from;
+	// 清空储存的数据
+	store.commit('SET_CLEAR_SETTING_STATE');
 });
 </script>
 

@@ -30,8 +30,11 @@ const store = createStore({
 			from: '' // 从哪个入口进来（不包括从购物车来的）
 		},
 		shopCart: [],
-		//
-		// clerkPWD:'',
+		// 从业员密码state暂存
+		clerkSettingState: {
+			employpassword: '',
+			shopid: ''
+		},
 
 	},
 	mutations: {
@@ -145,7 +148,19 @@ const store = createStore({
 		// },
 		DROP_SHOPCART_ITEM_BY_IDX(state, index) {
 			state.shopCart.splice(index, 1)
-		}
+		},
+		SET_CLEAR_SETTING_STATE(state, {
+			employpassword,
+			shopid
+		} = {
+			employpassword: '',
+			shopid: ''
+		}) {
+			state.clerkSettingState = {
+				employpassword,
+				shopid
+			}
+		},
 	}
 })
 

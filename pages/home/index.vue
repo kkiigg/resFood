@@ -123,6 +123,8 @@ setPadmacid();
 
 onReady(() => {
 	showDrawer();
+	// 清空储存的数据
+	store.commit('SET_CLEAR_SETTING_STATE');
 });
 </script>
 

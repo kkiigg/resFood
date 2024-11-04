@@ -96,7 +96,7 @@ const pageObj = reactive({
 const onLeftTextClick = () => {
 	if (store.state.currOrderObj?.from === PageFrom.assistant) {
 		uni.navigateTo({
-			url: '/pages/home/index'
+			url: '/pages/tableConnect/index'
 		});
 		return;
 	}

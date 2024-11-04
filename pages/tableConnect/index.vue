@@ -1,6 +1,7 @@
 <template>
 	<view class="container">
-		<baseBackBar title="店舗テーブル番号" back-url="/pages/home/index"></baseBackBar>
+		<!-- from=home 先这么写 虽然from不是home但是逻辑是一样的 -->
+		<baseBackBar title="店舗テーブル番号" back-url="/pages/clerkSetting/index?from=home"></baseBackBar>
 
 		<!-- 轮播 -->
 		<swiper class="swiper" :indicator-dots="true" :autoplay="false">
@@ -131,16 +132,25 @@ const requestEmploySubset = async (num) => {
 		url
 	});
 };
-onMounted(() => {
-	const instance = getCurrentInstance().proxy;
-	const eventChannel = instance.getOpenerEventChannel();
-	eventChannel.on('sendPsw', (data) => {
-		console.log('rec', data);
-		formData.employpassword = data.pwd;
-		formData.shopid = data.shopid;
-		queryData();
-	});
-});
+
+const initPageDate = () => {
+	const { employpassword, shopid } = store.state.clerkSettingState;
+	formData.employpassword = employpassword;
+	formData.shopid = shopid;
+	queryData();
+};
+initPageDate();
+
+// onMounted(() => {
+// 	const instance = getCurrentInstance().proxy;
+// 	const eventChannel = instance.getOpenerEventChannel();
+// 	eventChannel.on('sendPsw', (data) => {
+// 		console.log('rec', data);
+// 		formData.employpassword = data.pwd;
+// 		formData.shopid = data.shopid;
+// 		queryData();
+// 	});
+// });
 </script>
 
 <style lang="scss" scoped>
