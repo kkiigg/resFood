@@ -30,6 +30,8 @@ const store = createStore({
 			from: '' // 从哪个入口进来（不包括从购物车来的）
 		},
 		shopCart: [],
+		//
+		// clerkPWD:'',
 
 	},
 	mutations: {

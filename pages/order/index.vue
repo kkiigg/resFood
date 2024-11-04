@@ -20,7 +20,7 @@
 							:key="item.classone"
 							:title="item.classonename"
 							:class="{ 'is-active': item.classone === dataObj.active }"
-							@click.stop="onPickMenu(item.classone)"
+							@click.stop="onPickMenu(item)"
 						>
 							<view
 								v-for="(item2, idx2) in item.classtwolist"
@@ -119,11 +119,23 @@ const getMenuList = async () => {
 };
 // getMenuList();
 
-const onPickMenu = (id) => {
+const onPickMenu = (data) => {
+	let id = '';
+	if (typeof data !== 'string') {
+		// 点击1级分类
+		if (data?.classtwolist?.length > 0) {
+			id = data?.classtwolist[0]?.classtwo;
+		} else {
+			id = data?.classone;
+		}
+	} else {
+		// 点击2级分类
+		id = data;
+	}
 	dataObj.active = id;
 	console.log(id);
 	console.log(dataObj.active);
-	initRightPageObj();
+	initRightPageObj(id);
 };
 
 //左下角购物车
@@ -140,8 +152,8 @@ const linkToCart = () => {
 // TODO如有性能问题可以用虚拟滚动，目前数据量不大
 const pageSize = 12;
 const rightPageObj = reactive({
-	// 所有的数据列表
-	foodList: [],
+	// 所有的数据列表 (废弃)
+	// foodList: [],
 	// 每个分类id下的数据列表
 	filteredList: [],
 	// 根据分页展示的数据列表
@@ -155,12 +167,22 @@ const getFoods = async () => {
 	});
 	rightPageObj.foodList = res ?? [];
 };
-// getFoods();
+const getFoodsById = async (id) => {
+	const res = await getGoodsList({
+		padmacid: store.state.padmacid,
+		category_id: id
+	});
+	// rightPageObj.foodList = res ?? [];
+	console.log(res);
+	return res ?? [];
+};
 
-const initRightPageObj = () => {
+const initRightPageObj = async (id) => {
 	rightPageObj.pageFoodIndex = 0;
 	rightPageObj.showList = [];
-	rightPageObj.filteredList = rightPageObj.foodList.filter((item) => item.classtwo === dataObj.active || item.classone === dataObj.active);
+	// rightPageObj.filteredList = rightPageObj.foodList.filter((item) => item.classtwo === dataObj.active || item.classone === dataObj.active);
+	const res = await getFoodsById(id);
+	rightPageObj.filteredList = res;
 	rightListDataLoad();
 };
 
@@ -174,8 +196,9 @@ const rightListDataLoad = () => {
 
 // 页面初始化
 const initPageRequest = async () => {
-	await Promise.all([getFoods(), getMenuList()]);
-	initRightPageObj();
+	// await Promise.all([getFoods(), getMenuList()]);
+	await getMenuList();
+	await initRightPageObj(dataObj.active);
 };
 
 // 点击添加到购物车按钮

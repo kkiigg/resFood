@@ -111,12 +111,14 @@ export const getClassifyList = ({
 
 //食品分类列表
 export const getGoodsList = ({
-	padmacid
+	padmacid,
+	category_id
 }) => {
 	return get({
 		url: '/baseAndFoodInfo/getgoodslist',
 		data: {
-			padmacid
+			padmacid,
+			category_id
 		}
 	});
 }
