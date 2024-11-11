@@ -1,10 +1,14 @@
-import {
-	createStore
-} from 'vuex'
+import Vue from 'vue'
+import Vuex from 'vuex'
 import {
 	getStorageJson
 } from '@/utils/storage.js'
-const store = createStore({
+
+Vue.use(Vuex)
+
+export default new Vuex.Store({
+
+
 	state: {
 		// shopInfo 格式：
 		//         "shopname": "北京老飯店　みらい平店",
@@ -163,5 +167,3 @@ const store = createStore({
 		},
 	}
 })
-
-export default store

@@ -62,6 +62,7 @@ export default {
 			defaultGalleryList: [{ fileurl: '/static/images/bg1.jpg' }, { fileurl: '/static/images/bg2.jpg' }, { fileurl: '/static/images/bg3.jpg' }]
 		};
 	},
+
 	computed: {
 		galleryArr() {
 			return store.state.shopInfo?.imagelist ?? this.defaultGalleryList;
@@ -69,7 +70,7 @@ export default {
 	},
 	methods: {
 		showDrawer() {
-			this.$refs.drawRef.value.open();
+			this.$refs.drawRef.open();
 		},
 		closeDrawer() {
 			this.$refs.drawRef.value.close();
@@ -95,7 +96,7 @@ export default {
 			});
 		},
 		onDrawChange(status) {
-			this.drawStatus.value = status;
+			this.drawStatus = status;
 		},
 		setPadmacid() {
 			let padmacid = '';
@@ -119,88 +120,12 @@ export default {
 		}
 	},
 	onReady() {
-		setPadmacid();
+		this.setPadmacid();
 		this.showDrawer();
 		// 清空储存的数据
 		store.commit('SET_CLEAR_SETTING_STATE');
-	},
-	onShow() {}
+	}
 };
-</script>
-//
-<script setup>
-// import { computed, reactive, ref } from 'vue';
-// import { onReady, onShow } from '@dcloudio/uni-app';
-// import store from '@/store/index.js';
-
-// const drawRef = ref();
-// const drawStatus = ref(true);
-
-// const defaultGalleryList = [{ fileurl: '/static/images/bg1.jpg' }, { fileurl: '/static/images/bg2.jpg' }, { fileurl: '/static/images/bg3.jpg' }];
-// const galleryArr = computed(() => {
-// 	return store.state.shopInfo?.imagelist ?? defaultGalleryList;
-// });
-
-// const showDrawer = () => {
-// 	drawRef.value.open();
-// };
-// const closeDrawer = () => {
-// 	drawRef.value.close();
-// };
-// const linkTo = (url) => {
-// 	if (!url) return;
-// 	uni.navigateTo({
-// 		url: url
-// 	});
-// };
-
-// const linkToOrder = () => {
-// 	const bindFileid = store.state.bindFileid;
-// 	if (!bindFileid) {
-// 		uni.showToast({
-// 			icon: 'error',
-// 			// 请先绑定设备
-// 			title: 'まずデバイスをバインドしてください'
-// 		});
-// 		return;
-// 	}
-// 	uni.navigateTo({
-// 		url: '/pages/order/index?fileid=' + bindFileid
-// 	});
-// };
-// const onDrawChange = (status) => {
-// 	drawStatus.value = status;
-// };
-
-// const setPadmacid = () => {
-// 	let padmacid = '';
-// 	// #ifdef H5
-// 	const hash = window.location.hash;
-// 	const queryIndex = hash.indexOf('?');
-// 	let queryParams = null;
-// 	if (queryIndex !== -1) {
-// 		const queryString = hash.substring(queryIndex + 1);
-// 		queryParams = new URLSearchParams(queryString);
-// 	}
-// 	padmacid = queryParams ? queryParams.get('padmacid') : null;
-// 	console.log('padmacid', padmacid);
-// 	// #endif
-// 	// #ifndef H5
-// 	const deviceInfo = uni.getDeviceInfo();
-// 	padmacid = deviceInfo.deviceId;
-// 	// #endif
-// 	store.commit('SET_PADMACID', padmacid || store.state.padmacid);
-// 	console.log(padmacid, 'padmacid');
-// };
-
-// setPadmacid();
-
-// onReady(() => {
-// 	showDrawer();
-// 	// 清空储存的数据
-// 	store.commit('SET_CLEAR_SETTING_STATE');
-// });
-//
 </script>
 
 <style lang="scss" scoped>
